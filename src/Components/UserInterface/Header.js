@@ -9,7 +9,7 @@ import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from '@material-ui/icons/Search'; 
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -187,10 +187,10 @@ const subMenu=()=>{
    
     <MenuItem style={{display:"flex" , width:"100%"}}  onMouseLeave={()=> setMyAnchorEl(null)} >
        
-      <div onClick={()=>props.history.push({pathname:'/productlist',gender:'Men',categoryid:1})}>
+      <div onClick={()=>props.history.push({pathname:'/productlist'},{gender:'Men',categoryid:1})}>
         <img src="/shopMenEye.jpg" width="800"></img>
       </div>
-      <div  onClick={()=>props.history.push({pathname:'/productlist',gender:'Women',categoryid:1})}>
+      <div  onClick={()=>props.history.push({pathname:'/productlist'},{gender:'Women',categoryid:1})}>
         <img src="/shopWomenEye.jpg" width="800"></img>
       </div>
   
@@ -203,10 +203,10 @@ const subMenu=()=>{
    */
       <MenuItem style={{display:"flex" , width:"100%"}} onMouseLeave={()=> setMyAnchorEl(null)}>
          
-        <div>
+        <div onClick={()=>props.history.push({pathname:'/productlist'},{gender:'Men',categoryid:3})}>
           <img src="/shopmensun.jpg" width={"800"}></img>
         </div>
-        <div>
+        <div onClick={()=>props.history.push({pathname:'/productlist'},{gender:'Women',categoryid:3})}>
           <img src="/shopwomensun.jpg" width={"800"}></img>
         </div>
     

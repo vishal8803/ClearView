@@ -3,14 +3,15 @@ import { getData,ServerURL,postData } from "../FetchAllServices";
 import Radio from '@material-ui/core/Radio';
 
 export default function ProductComponent(props) {
-    const [item , setItem] = useState({...props.product,details:[]})
+  var itemProps = props.product
+    const [item , setItem] = useState({details:[]})
     const [productStyle , setProductStyle]=useState({width:400,height:300,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',margin:10,padding:10,borderRadius:20})
     const [selected , setSelceted] = useState({finalproductid:'',colorid:'',price:'',offerprice:'',picture:''});
     const [status , setStatus] = useState(false)
    
    
     const fetchFinalProducts=async()=>{
-        var body = {"productid":item.productid} ;
+        var body = {"productid":itemProps.productid} ;
         const result =await postData('finalproduct/fetchAllFinalProductsByProductId',body);
         
         setItem((prev)=>({...prev,details:result.data}))
@@ -39,10 +40,10 @@ export default function ProductComponent(props) {
 
     return(
         <div style={productStyle} onMouseEnter={(event)=>setBorder(event)} onMouseLeave={(event)=>removeBorder(event)}>
-        <img   src={`${ServerURL}/images/${selected.picture?selected.picture:item.picture}`} width={350}></img>
+        <img   src={`${ServerURL}/images/${status?selected.picture:itemProps.picture}`} width={350}></img>
         {status &&
         <div>
-        <div style={{textAlign:'center',marginTop:30}}>{item.productname}</div>
+        <div style={{textAlign:'center',marginTop:30}}>{itemProps.productname}</div>
 
       
         <div>

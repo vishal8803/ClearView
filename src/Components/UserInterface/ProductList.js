@@ -117,8 +117,12 @@ export default function ProductList(props) {
     fetchAllPrice();
     fetchAllSize();
     fetchAllGender();
-    fetchAllProducts();
+    
   },[])
+
+  useEffect(function(){
+    fetchAllProducts();
+  },[props.location.state.gender,props.location.state.categoryid])
 
   const handleChange=(event,item)=>
   {
@@ -369,7 +373,7 @@ export default function ProductList(props) {
   };
 
   const fetchAllProducts=async()=>{
-    var body = {gender:props.location.gender,categoryid:props.location.categoryid}
+    var body = {gender:props.location.state.gender,categoryid:props.location.state.categoryid}
     var list =await postData('product/fetchAllProductByGenderAndId',body)
     setAllProducts(list.data)
   }

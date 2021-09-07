@@ -15,12 +15,6 @@ export default function Home(props) {
     setList(result.data);
   };
 
-  const breakPoints = [
-    { width: 1, itemsToShow: 1 },
-    { width: 550, itemsToShow: 1 },
-    { width: 768, itemsToShow: 2 },
-    { width: 1200, itemsToShow: 2 },
-  ];
 
   useEffect(function () {
     fetchAllHomePagePictures();
@@ -126,7 +120,7 @@ Is Premium, Not Expensive!</p>
                     >
                       <img src="idealfit.png" width="70%"></img>
                       <h2>The Ideal Fit</h2>
-                      <p
+                      <p 
                         style={{
                           color: "#9a9a9a",
                           paddingLeft: 40,
