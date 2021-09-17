@@ -28,6 +28,8 @@ import HomePagePicture from "./Components/Administrator/HomePagePicture";
 import DisplayHomePagePicture from "./Components/Administrator/DisplayHomePagePicture";
 import Home from "./Components/UserInterface/Home";
 import Footer from "./Components/UserInterface/Footer";
+import productView from "./Components/UserInterface/productView";
+import OurStory from "./Components/UserInterface/OurStory ";
 function App(props) {
   return (
     <div className="App">
@@ -114,6 +116,12 @@ function App(props) {
       props={props.history}
       />
       <Route component={Footer} path='/footer'
+      props={props.history}
+      />
+      <Route component={productView} path='/productView'
+      props={props.history}
+      />
+      <Route component={OurStory} path='/ourstory'
       props={props.history}
       />
 

@@ -383,7 +383,9 @@ export default function ProductList(props) {
   const displayProducts=()=>{
     return getAllProducts.map((item)=>{
       return(
-        <ProductComponent product={item}/>
+        <div>
+        <ProductComponent product={item} history = {props.history}/>
+        </div>
       )
     })
   }

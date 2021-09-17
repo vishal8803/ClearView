@@ -6,7 +6,7 @@ export default function ProductComponent(props) {
   var itemProps = props.product
     const [item , setItem] = useState({details:[]})
     const [productStyle , setProductStyle]=useState({width:400,height:300,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',margin:10,padding:10,borderRadius:20})
-    const [selected , setSelceted] = useState({finalproductid:'',colorid:'',price:'',offerprice:'',picture:''});
+    const [selected , setSelceted] = useState({finalproductid:'',colorid:'',colorname:'',price:'',offerprice:'',picture:''});
     const [status , setStatus] = useState(false)
    
    
@@ -17,13 +17,13 @@ export default function ProductComponent(props) {
         setItem((prev)=>({...prev,details:result.data}))
         if(result.data.length>0){
           // alert("Hello")
-        var {finalproductid,colorid,price,offerprice,picture}=result.data[0] ;
-        setSelceted({finalproductid,colorid,price,offerprice,picture}) ;
+        var {finalproductid,colorid,colorname,price,offerprice,picture}=result.data[0] ;
+        setSelceted({finalproductid,colorid,price,colorname,offerprice,picture}) ;
         }
     }
 
     const setBorder=async(e)=>{
-       setProductStyle((prev)=>({...prev,border:'1px solid black'}))
+       setProductStyle((prev)=>({...prev,border:'1px solid black',cursor:'pointer'}))
         await fetchFinalProducts();
         setStatus(true)
       }
@@ -34,13 +34,15 @@ export default function ProductComponent(props) {
       }
 
       const handleChange=(item)=>{
-        var {finalproductid,colorname,price,offerprice,picture}=item ;
-        setSelceted({finalproductid,colorname,price,offerprice,picture}) ;
+        var {finalproductid,colorid,price,colorname,offerprice,picture}=item ;
+        setSelceted({finalproductid,colorid,price,colorname,offerprice,picture}) ;
       }
 
     return(
         <div style={productStyle} onMouseEnter={(event)=>setBorder(event)} onMouseLeave={(event)=>removeBorder(event)}>
-        <img   src={`${ServerURL}/images/${status?selected.picture:itemProps.picture}`} width={350}></img>
+          
+        <img onClick={()=>props.history.push({pathname:'/productView'},{itemprops:itemProps,selected:selected,item:item})}  src={`${ServerURL}/images/${status?selected.picture:itemProps.picture}`} width={350}></img>
+      
         {status &&
         <div>
         <div style={{textAlign:'center',marginTop:30}}>{itemProps.productname}</div>

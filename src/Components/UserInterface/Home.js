@@ -2,23 +2,52 @@ import React, { useState, useEffect } from "react";
 import { alpha, makeStyles } from "@material-ui/core/styles";
 import Header from "./Header";
 import Button from "@material-ui/core/Button";
-import { getData, ServerURL } from "../FetchAllServices";
+import { getData, postData, ServerURL } from "../FetchAllServices";
 import { Grid } from "@material-ui/core";
 import Footer from "./Footer";
-import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
+import ArrowRightAltIcon from "@material-ui/icons/ArrowRightAlt";
+import { Link } from "react-router-dom";
+import ProductComponent from "./ProductComponent";
 
 export default function Home(props) {
   const [list, setList] = useState([]);
+  const [ourRecommondations , setOurRecomondation] = useState([])
+  var [status,setStatus] = useState(true) ;
 
   const fetchAllHomePagePictures = async () => {
     var result = await getData("homePagePicture/fetchAllPicture");
     setList(result.data);
   };
 
-
   useEffect(function () {
     fetchAllHomePagePictures();
+    fetchBestSellers();
   }, []);
+
+  const fetchBestSellers=async()=>{
+    var body={"status":"Best Seller"}
+    var list2 =await postData("product/fetchOurRecommondations",body)
+    // alert(list2)
+    console.log(list2.data)
+    setOurRecomondation(list2.data)
+    setStatus(true)
+  }
+  const fetchNewArrival=async()=>{
+    var body={"status":"New Arrival"}
+    var list1 =await postData("product/fetchOurRecommondations",body)
+    setOurRecomondation(list1.data)
+    setStatus(false)
+  }
+
+  const displayProducts=()=>{
+    return ourRecommondations.map((item)=>{
+      return(
+        <Grid item xs={4}>
+        <ProductComponent  product={item} history={props.history} />
+        </Grid>
+      )
+    })
+  }
 
   const displayAllPictures = () => {
     return list.map((item) => {
@@ -29,12 +58,21 @@ export default function Home(props) {
               <img
                 src={`${ServerURL}/images/${item.picture}`}
                 width="100%"
-                style={{position:'relative' }}
+                style={{ position: "relative" }}
               ></img>
-              <div style={{ position:'absolute' , top:'35%',left:'65%'}}>
-                <p style={{fontSize:30,fontWeight:200 , color:'#404040',fontFamily:'sans-serif'}}>Stylish Eyewear That <br></br>
-Is Premium, Not Expensive!</p>
-              <Button
+              <div style={{ position: "absolute", top: "35%", left: "65%" }}>
+                <p
+                  style={{
+                    fontSize: 30,
+                    fontWeight: 200,
+                    color: "#404040",
+                    fontFamily: "sans-serif",
+                  }}
+                >
+                  Stylish Eyewear That <br></br>
+                  Is Premium, Not Expensive!
+                </p>
+                <Button
                   style={{
                     paddingLeft: 100,
                     paddingRight: 100,
@@ -44,14 +82,14 @@ Is Premium, Not Expensive!</p>
                     background: "#50526e",
                     color: "#fff",
                     borderRadius: 0,
-                    marginBottom:5
+                    marginBottom: 5,
                   }}
                   variant="contained"
                 >
                   Shop Eyeglasses
                 </Button>
                 <br></br>
-              <Button
+                <Button
                   style={{
                     paddingLeft: 100,
                     paddingRight: 100,
@@ -61,15 +99,32 @@ Is Premium, Not Expensive!</p>
                     background: "#50526e",
                     color: "#fff",
                     borderRadius: 0,
-                    marginTop:3,
-                    marginBottom:0
+                    marginTop: 3,
+                    marginBottom: 0,
                   }}
                   variant="contained"
                 >
                   Shop Sunglasses
                 </Button>
-                <div style={{margin:15,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <span style={{fontSize:18,color:'#50526e',fontWeight:700,fontFamily:'sans-serif',}}>Take our style quiz </span> <img src="arrow.png"  ></img>
+                <div
+                  style={{
+                    margin: 15,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 18,
+                      color: "#50526e",
+                      fontWeight: 700,
+                      fontFamily: "sans-serif",
+                    }}
+                  >
+                    Take our style quiz{" "}
+                  </span>{" "}
+                  <img src="arrow.png"></img>
                 </div>
               </div>
               <h1>New This Week!</h1>
@@ -120,7 +175,7 @@ Is Premium, Not Expensive!</p>
                     >
                       <img src="idealfit.png" width="70%"></img>
                       <h2>The Ideal Fit</h2>
-                      <p 
+                      <p
                         style={{
                           color: "#9a9a9a",
                           paddingLeft: 40,
@@ -200,7 +255,7 @@ Is Premium, Not Expensive!</p>
                 src={`${ServerURL}/images/${item.picture}`}
                 width="100%"
               ></img>
-              <Grid container></Grid>
+              
               <div
                 style={{
                   display: "flex",
@@ -252,6 +307,30 @@ Is Premium, Not Expensive!</p>
                   Find us in stores
                 </Button>
               </div>
+            </div>
+          ) : item.position == 3 ? (
+            <div style={{ paddingLeft: 100, paddingRight: 100, margin: 20, }}>
+              <img
+                src={`${ServerURL}/images/${item.picture}`}
+                width="100%"
+              ></img>
+              <div style={{textAlign:'center'}} >
+              <h1 style={{textAlign:'center'}}>Our Recommondations</h1>
+              <Grid container spacing={0}>
+                <Grid item xs={6}>
+                <Link  onClick={()=>fetchBestSellers()} style={{color:"#404040",fontSize:21,textDecoration:status?'underline':'none'}} >Best Sellers</Link>
+                </Grid>
+                <Grid item xs={6}>
+                <Link onClick={()=>fetchNewArrival()} style={{color:"#404040",fontSize:21,textDecoration:!status?'underline':'none'}} >New Arrival</Link>
+                
+                </Grid>
+                </Grid>
+               
+                <Grid  spacing={1} container>
+                  {displayProducts()}
+
+                </Grid>
+                </div>
             </div>
           ) : (
             <div style={{ paddingLeft: 100, paddingRight: 100, margin: 20 }}>
