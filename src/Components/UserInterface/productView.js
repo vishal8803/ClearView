@@ -17,6 +17,7 @@ import { postData, ServerURL } from "../FetchAllServices";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import AddToCart from "./AddToCart";
 // import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 import {  ArrowBackIos, ArrowForwardIos } from "@material-ui/icons";
@@ -268,8 +269,8 @@ export default function ProductView(props) {
                 <></>
               )}
             </Slider>
-
-            <Button
+                <AddToCart/>
+            {/* <Button
               style={{
                 backgroundColor: "#50526e",
                 color: "white",
@@ -280,7 +281,7 @@ export default function ProductView(props) {
               }}
             >
               Select Lenses
-            </Button>
+            </Button> */}
             <Button
               style={{
                 backgroundColor: "#FFF",
