@@ -1,5 +1,5 @@
 import { Button, Grid } from "@material-ui/core";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Footer from "./Footer";
 import Header from "./Header";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
@@ -17,6 +17,9 @@ import { postData, ServerURL } from "../FetchAllServices";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+// import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+
+import {  ArrowBackIos, ArrowForwardIos } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ProductView(props) {
-  
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
   const [expanded2, setExpanded2] = React.useState(false);
@@ -44,16 +46,25 @@ export default function ProductView(props) {
   const [selected, setSelected] = useState(props.location.state.selected);
   const item = props.location.state.item;
   const itemProps = props.location.state.itemprops;
+  var bigSlider = useRef();
+  var smallSlider = useRef();
 
   var settings = {
     dots: false,
-    nextArrow: <></>,
-    prevArrow: <></>,
+    arrows:false,
     infinite: true,
-    speed: 600,
+    speed: 700,
     slidesToShow: 4,
     slidesToScroll: 1,
     focusOnSelect: true,
+  };
+  var settings2 = {
+    dots: false,
+    arrows:false,
+    infinite: true,
+    speed: 700,
+    slidesToShow: 2,
+    slidesToScroll: 1,
   };
 
   const handleChange = (panel) => (event, isExpanded) => {
@@ -72,9 +83,21 @@ export default function ProductView(props) {
     setExpanded2(false);
   };
 
-  const onPicSelecetd = (picture) => {
+  const onPicSelecetd = (picture, index) => {
     setPicSelected(picture.productPictureid);
+    bigSlider.current.slickGoTo(index);
   };
+
+  const handlePrev=()=>{
+    bigSlider.current.slickPrev();
+    smallSlider.current.slickPrev();
+    // setPicSelected(bigSlider.current)
+    // setPicSelected(bigSlider.currentTarget.productPictureid)
+  }
+  const handleNext=()=>{
+    bigSlider.current.slickNext();
+    smallSlider.current.slickNext();
+  }
 
   const handleChangeButton = (item) => {
     var { finalproductid, colorid, price, colorname, offerprice, picture } =
@@ -87,21 +110,19 @@ export default function ProductView(props) {
       offerprice,
       picture,
     });
-    // fetchallProductPictures();
+    fetchallProductPictures();
   };
 
   const fetchallProductPictures = async () => {
     var body = { finalproductid: selected.finalproductid };
     var result = await postData("finalproduct/fetchProductPicture", body);
     setProductPicture(result.data);
+    // setPicSelected((result.data)[0].productPictureid)
   };
-
-  
-
 
   useEffect(function () {
     fetchallProductPictures();
-  }, []);
+  }, [selected.finalproductid]);
 
   const productDetails = () => {
     return (
@@ -119,9 +140,37 @@ export default function ProductView(props) {
           </Link>
           <Typography color="textPrimary">{itemProps.productname}</Typography>
         </Breadcrumbs>
-        <Grid container spacing={1} style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <Grid item xs={6} >
-          
+        <Grid
+          container
+          spacing={1}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Grid item xs={8} style={{display:'flex',alignItems:'center' , justifyContent:'center'}}>
+            <ArrowBackIos onClick={()=>handlePrev()} style={{cursor:'pointer'}}/>
+            <Slider {...settings2} style={{ border: null,margin:'30' }} ref={bigSlider} style={{width:'95%'}}>
+              {productPicture.map((picture) => {
+                return (
+                  <div
+                    // data-slick='{"slidesToShow": 4, "slidesToScroll": 4}'
+                    style={{
+                      border: null,
+                      cursor: "pointer",
+                    }}
+                    id={picture.productPictureid}
+                  >
+                    <img
+                      src={`${ServerURL}/images/${picture.images}`}
+                      width="90%"
+                    />
+                  </div>
+                );
+              })}
+            </Slider>
+            <ArrowForwardIos onClick={()=>handleNext()} style={{cursor:'pointer'}}/>
           </Grid>
           <Grid item xs={4}>
             <p style={{ fontSize: 20 }}>{itemProps.productname}</p>
@@ -186,13 +235,14 @@ export default function ProductView(props) {
                 marginTop: 20,
                 marginBottom: 20,
               }}
+              ref={smallSlider}
             >
               {productPicture ? (
-                productPicture.map((picture) => {
+                productPicture.map((picture, index) => {
                   return (
                     <div
-                      data-slick='{"slidesToShow": 4, "slidesToScroll": 4}'
-                      style={{ border: null, cursor:'pointer' }}
+                      // data-slick='{"slidesToShow": 4, "slidesToScroll": 4}'
+                      style={{ border: null, cursor: "pointer" }}
                     >
                       <img
                         src={`${ServerURL}/images/${picture.images}`}
@@ -200,7 +250,6 @@ export default function ProductView(props) {
                           borderRadius: 5,
                           paddingTop: 10,
                           paddingBottom: 10,
-                          // width: "18%",
                           border:
                             picture.productPictureid == picSlected
                               ? "1px solid black"
@@ -210,7 +259,7 @@ export default function ProductView(props) {
                           margin: "auto",
                           height: 50,
                         }}
-                        onClick={() => onPicSelecetd(picture)}
+                        onClick={() => onPicSelecetd(picture, index)}
                       />
                     </div>
                   );

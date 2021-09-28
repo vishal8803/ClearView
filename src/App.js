@@ -30,6 +30,8 @@ import Home from "./Components/UserInterface/Home";
 import Footer from "./Components/UserInterface/Footer";
 import productView from "./Components/UserInterface/productView";
 import OurStory from "./Components/UserInterface/OurStory ";
+import Signup from "./Components/UserInterface/Signup";
+import UserInterface from "./Components/UserInterface/UserLogin";
 function App(props) {
   return (
     <div className="App">
@@ -122,6 +124,12 @@ function App(props) {
       props={props.history}
       />
       <Route component={OurStory} path='/ourstory'
+      props={props.history}
+      />
+      <Route component={UserInterface} path='/userlogin'
+      props={props.history}
+      />
+      <Route component={Signup} path='/signup'
       props={props.history}
       />
 
