@@ -6,7 +6,7 @@ export default function ProductComponent(props) {
   var itemProps = props.product
     const [item , setItem] = useState({details:[]})
     const [productStyle , setProductStyle]=useState({width:400,height:300,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',margin:10,padding:10,borderRadius:20})
-    const [selected , setSelceted] = useState({finalproductid:'',colorid:'',colorname:'',price:'',offerprice:'',picture:''});
+    const [selected , setSelceted] = useState({finalproductid:'',colorid:'',colorname:'',price:'',offerprice:'',picture:'',stock:''});
     const [status , setStatus] = useState(false)
    
    
@@ -17,8 +17,8 @@ export default function ProductComponent(props) {
         setItem((prev)=>({...prev,details:result.data}))
         if(result.data.length>0){
           // alert("Hello")
-        var {finalproductid,colorid,colorname,price,offerprice,picture}=result.data[0] ;
-        setSelceted({finalproductid,colorid,price,colorname,offerprice,picture}) ;
+        var {finalproductid,colorid,colorname,price,offerprice,picture,stock}=result.data[0] ;
+        setSelceted({finalproductid,colorid,price,colorname,offerprice,picture,stock}) ;
         }
     }
 
@@ -34,8 +34,8 @@ export default function ProductComponent(props) {
       }
 
       const handleChange=(item)=>{
-        var {finalproductid,colorid,price,colorname,offerprice,picture}=item ;
-        setSelceted({finalproductid,colorid,price,colorname,offerprice,picture}) ;
+        var {finalproductid,colorid,price,colorname,offerprice,picture,stock}=item ;
+        setSelceted({finalproductid,colorid,price,colorname,offerprice,picture,stock}) ;
       }
 
     return(

@@ -36,11 +36,11 @@ export default function AddToCart() {
       >
         Add to Cart
       </Button>:
-    <div style={{display:'flex',margin:20}}>
+    <div style={{display:'flex',margin:20,marginLeft:112}}>
       <Fab size="small" color="secondary" aria-label="add" boxShadow='0' style={{backgroundColor: "#50526e",boxShadow:0}} variant="circular" onClick={()=>increseValue()}>
         <AddIcon />
       </Fab>
-      <div style={{marginInline:20,fontSize:24}}>
+      <div style={{marginInline:20,fontSize:24,fontWeight:'bolder'}}>
         {value}
       </div>
       <Fab size="small" color="secondary" aria-label="add" style={{backgroundColor: "#50526e"}} variant="circular"  onClick={()=>decreaseValue()}>

@@ -101,7 +101,7 @@ export default function ProductView(props) {
   }
 
   const handleChangeButton = (item) => {
-    var { finalproductid, colorid, price, colorname, offerprice, picture } =
+    var { finalproductid, colorid, price, colorname, offerprice, picture,stock } =
       item;
     setSelected({
       finalproductid,
@@ -110,6 +110,7 @@ export default function ProductView(props) {
       colorname,
       offerprice,
       picture,
+      stock
     });
     fetchallProductPictures();
   };
@@ -269,6 +270,9 @@ export default function ProductView(props) {
                 <></>
               )}
             </Slider>
+            <div style={{letterSpacing:1,fontSize:16,fontWeight:'bolder'}}>
+              {selected.stock ==0 ?<span style={{color:'red'}}>Not Available</span>:selected.stock>=1 && selected.stock<=3 ? <span style={{color:'red'}}>Hurry, Only {selected.stock} left!</span>:<span style={{color:'green'}}>Available</span>}
+            </div>
                 <AddToCart/>
             {/* <Button
               style={{
