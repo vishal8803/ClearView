@@ -9,16 +9,19 @@ import { Button } from "@material-ui/core";
 const theme = createTheme({
     shadows:["none"]
 })
-export default function AddToCart() {
+export default function AddToCart(props) {
   const [value, setValue] = useState("0");
 
   const increseValue=()=>{
-      if(parseInt(value)+1<=5)
-    setValue(parseInt(value)+1)
+      if(parseInt(value)+1<=5){
+        setValue(parseInt(value)+1)
+        props.onChange(parseInt(value)+1)
+      }
   }
 
   const decreaseValue=()=>{
     setValue(parseInt(value)-1)
+    props.onChange(parseInt(value)-1)
   }
  
   return (
@@ -32,7 +35,7 @@ export default function AddToCart() {
           padding: 20,
           borderRadius: 0,
         }}
-        onClick={()=>setValue(parseInt(value)+1)}
+        onClick={()=>increseValue()}
       >
         Add to Cart
       </Button>:

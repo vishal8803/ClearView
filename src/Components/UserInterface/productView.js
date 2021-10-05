@@ -18,6 +18,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import AddToCart from "./AddToCart";
+import { useDispatch } from "react-redux";
 // import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 import {  ArrowBackIos, ArrowForwardIos } from "@material-ui/icons";
@@ -45,10 +46,12 @@ export default function ProductView(props) {
   const [productPicture, setProductPicture] = useState([]);
   const [picSlected, setPicSelected] = useState("");
   const [selected, setSelected] = useState(props.location.state.selected);
+  const [refresh, setRefresh] = useState(false)
   const item = props.location.state.item;
   const itemProps = props.location.state.itemprops;
   var bigSlider = useRef();
   var smallSlider = useRef();
+  var dispatch = useDispatch()
 
   var settings = {
     dots: false,
@@ -125,6 +128,19 @@ export default function ProductView(props) {
   useEffect(function () {
     fetchallProductPictures();
   }, [selected.finalproductid]);
+
+  const handleQtyChange=(value)=>{
+    var data ={...itemProps,...selected,value}
+    // alert(JSON.stringify(data))
+    if(value==0)
+    {
+        dispatch({type:"REMOVE_CART",payload:[selected.finalproductid]})
+    }else
+    {
+        dispatch({type:"ADD_CART",payload:[selected.finalproductid,{data,value}]})
+    }
+    setRefresh(!refresh)
+  }
 
   const productDetails = () => {
     return (
@@ -273,7 +289,7 @@ export default function ProductView(props) {
             <div style={{letterSpacing:1,fontSize:16,fontWeight:'bolder'}}>
               {selected.stock ==0 ?<span style={{color:'red'}}>Not Available</span>:selected.stock>=1 && selected.stock<=3 ? <span style={{color:'red'}}>Hurry, Only {selected.stock} left!</span>:<span style={{color:'green'}}>Available</span>}
             </div>
-                <AddToCart/>
+                <AddToCart onChange={(value)=>handleQtyChange(value)} />
             {/* <Button
               style={{
                 backgroundColor: "#50526e",
