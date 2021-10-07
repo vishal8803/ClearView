@@ -2,13 +2,11 @@ import { Button, Grid } from "@material-ui/core";
 import React, { useState, useEffect, useRef } from "react";
 import Footer from "./Footer";
 import Header from "./Header";
-import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import { Radio } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import Accordion from "@material-ui/core/Accordion";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { makeStyles } from "@material-ui/core";
@@ -18,7 +16,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import AddToCart from "./AddToCart";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 // import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 
 import {  ArrowBackIos, ArrowForwardIos } from "@material-ui/icons";
@@ -51,7 +49,9 @@ export default function ProductView(props) {
   const itemProps = props.location.state.itemprops;
   var bigSlider = useRef();
   var smallSlider = useRef();
-  var dispatch = useDispatch()
+  var dispatch = useDispatch();
+
+  const cart = useSelector(state=>state.cart)
 
   var settings = {
     dots: false,
@@ -289,7 +289,7 @@ export default function ProductView(props) {
             <div style={{letterSpacing:1,fontSize:16,fontWeight:'bolder'}}>
               {selected.stock ==0 ?<span style={{color:'red'}}>Not Available</span>:selected.stock>=1 && selected.stock<=3 ? <span style={{color:'red'}}>Hurry, Only {selected.stock} left!</span>:<span style={{color:'green'}}>Available</span>}
             </div>
-                <AddToCart onChange={(value)=>handleQtyChange(value)} />
+                <AddToCart value={cart.hasOwnProperty(selected.finalproductid)?cart[selected.finalproductid].value:0} onChange={(value)=>handleQtyChange(value)} />
             {/* <Button
               style={{
                 backgroundColor: "#50526e",
