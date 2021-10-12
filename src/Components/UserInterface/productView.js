@@ -289,7 +289,7 @@ export default function ProductView(props) {
             <div style={{letterSpacing:1,fontSize:16,fontWeight:'bolder'}}>
               {selected.stock ==0 ?<span style={{color:'red'}}>Not Available</span>:selected.stock>=1 && selected.stock<=3 ? <span style={{color:'red'}}>Hurry, Only {selected.stock} left!</span>:<span style={{color:'green'}}>Available</span>}
             </div>
-                <AddToCart value={cart.hasOwnProperty(selected.finalproductid)?cart[selected.finalproductid].value:0} onChange={(value)=>handleQtyChange(value)} />
+                <AddToCart stock={selected.stock} value={cart.hasOwnProperty(selected.finalproductid)?cart[selected.finalproductid].value:0} onChange={(value)=>handleQtyChange(value)} />
             {/* <Button
               style={{
                 backgroundColor: "#50526e",

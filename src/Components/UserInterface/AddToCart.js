@@ -11,13 +11,14 @@ const theme = createTheme({
 })
 export default function AddToCart(props) {
   const [value, setValue] = useState(props.value);
+  const stock = props.stock 
 
   useEffect(function(){
     setValue(props.value)
   },[props.value])
 
   const increseValue=()=>{
-      if(parseInt(value)+1<=5){
+      if(parseInt(value)+1<=stock){
         setValue(parseInt(value)+1)
         props.onChange(parseInt(value)+1)
       }

@@ -6,21 +6,33 @@ import IconButton from "@material-ui/core/IconButton";
 import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import MenuIcon from "@material-ui/icons/Menu";
-import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import ShoppingCart from "@material-ui/icons/ShoppingCart";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import Button from "@material-ui/core/Button";
-import { getData } from "../FetchAllServices";
+import { getData, ServerURL } from "../FetchAllServices";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { Link } from "react-router-dom";
 import {  useSelector } from "react-redux";
+import clsx from 'clsx';
+import Drawer from '@material-ui/core/Drawer';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
+  },
+  list: {
+    width: 450,
+  },
+  fullList: {
+    width: 'auto',
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -91,6 +103,22 @@ export default function Header(props) {
 
   var productInCart = useSelector(state=>state.cart)
   var keys = Object.keys(productInCart)
+  var products = Object.values(productInCart)
+  var values = Object.values(productInCart)
+
+  var totalPriceWithoutDiscount = values.reduce(calculatePriceWithoutDiscount,0);
+
+  function calculatePriceWithoutDiscount(a,b){
+    var actualPrice = b.data.price*b.data.value ;
+    return a+actualPrice;
+  }
+
+  var totalPriceWithDiscount = values.reduce(calculatePriceWithDiscount,0);
+
+  function calculatePriceWithDiscount(a,b){
+    var actualPrice = b.data.offerprice>0?b.data.offerprice*b.data.value:b.data.price*b.data.value ;
+    return a+actualPrice;
+  }
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -128,6 +156,84 @@ export default function Header(props) {
     </Menu>
   );
 
+  ////////////////////////////Right Drawer///////////////////////////
+
+  
+  const [state, setState] = useState({right: false});
+
+  const toggleDrawer = (anchor, open)  => {
+    setState({ ...state, [anchor]: open });
+  };
+
+  
+
+  const cartItems = ()=>{
+    return products.map((item)=>{
+      var ite = JSON.stringify(item) 
+      return (
+        <div>
+        <div style={{display:'flex',justifyContent:'space-evenly',margin:20}}>
+        <div style={{display:'flex',flexDirection:'column' , width:"50%"}}>
+
+            <img src={`${ServerURL}/images/${item.data.picture}`} /> 
+          <span style={{margin:10,fontWeight:700}}>{item.data.productname} ( <span style={{color:item.data.colorname}}>{item.data.colorname} </span> )</span>
+        </div>
+          <div  style={{display:'flex',justifyContent:'center' , alignItems:'center',flexDirection:'column',width:'100%'}}>
+           
+         <span style={{fontWeight:700}}>&#8377; {item.data.offerprice==0?item.data.price:item.data.offerprice} x {item.data.value}</span>
+         <span style={{marginTop:10}}> {item.data.offerprice>0?<span style={{color:'green' ,fontWeight:'bolder'}}> You save &#8377; { (item.data.price - item.data.offerprice)*(item.data.value)}</span>:<span style={{color:'red' ,fontWeight:'bolder'}}>No Offer</span> }</span>
+          </div>
+        </div>
+          <Divider />
+          </div>
+      )
+    })
+  }
+
+  const list = (anchor) => (
+    <div
+      className={clsx(classes.list, {
+        [classes.fullList]: anchor === 'top' || anchor === 'bottom',
+      })}
+      role="presentation"
+      onClick={()=>toggleDrawer(anchor, false)}
+      onKeyDown={()=>toggleDrawer(anchor, false)}
+    >
+      <div style={{padding:5, fontWeight:700}}>
+     Item(s): {keys.length}
+      </div>
+
+      {cartItems()}
+      
+      <div style={{padding:10, fontWeight:700}}>
+      Payable: <span style={{float:'right'}}> &#8377; {totalPriceWithoutDiscount}</span>
+      </div>
+
+      <div style={{padding:10, fontWeight:700}}>
+      Savings: <span style={{float:'right'}}> &#8377; -{totalPriceWithoutDiscount-totalPriceWithDiscount} </span>
+      </div>
+
+      <div style={{padding:10, fontWeight:700}}>
+    Net: <span style={{float:'right'}}> &#8377; {totalPriceWithDiscount} </span>
+      </div>
+      
+    </div>
+  );
+
+  const rightDrawer=()=>{
+        return(<div>
+          
+            <React.Fragment key={'right'}>
+              <Drawer anchor={'right'} open={state['right']} onClose={()=>toggleDrawer('right', false)}>
+                {list('right')}
+              </Drawer>
+            </React.Fragment>
+          
+        </div>)
+  }
+
+  ///////////////////////////////////////////////////////////////////
+
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
@@ -140,9 +246,9 @@ export default function Header(props) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
+        <IconButton onClick={()=>toggleDrawer('right',true)} aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={keys.length} color="secondary">
-            <ShoppingCart />
+            <ShoppingCart   />
           </Badge>
         </IconButton>
         <p>Messages</p>
@@ -161,6 +267,8 @@ export default function Header(props) {
       </MenuItem>
     </Menu>
   );
+
+
 
   //////////My Work////////////////////
   const [getListCategory, setListCategory] = useState([]);
@@ -312,7 +420,7 @@ export default function Header(props) {
           </Menu>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <IconButton aria-label="show 4 new mails" color="inherit">
+            <IconButton onClick={()=>toggleDrawer('right',true)} aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={keys.length} color="secondary">
                 <ShoppingCart />
               </Badge>
@@ -342,6 +450,7 @@ export default function Header(props) {
           </div>
         </Toolbar>
       </AppBar>
+      {rightDrawer()}
       {renderMobileMenu}
       {renderMenu}
     </div>
