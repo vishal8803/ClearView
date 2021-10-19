@@ -13,16 +13,14 @@ import Button from "@material-ui/core/Button";
 import { getData, ServerURL } from "../FetchAllServices";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { Link } from "react-router-dom";
-import {  useSelector } from "react-redux";
-import clsx from 'clsx';
-import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import { useSelector } from "react-redux";
+import clsx from "clsx";
+import Drawer from "@material-ui/core/Drawer";
+import Divider from "@material-ui/core/Divider";
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
+import { Remove } from "@material-ui/icons";
+import { useDispatch } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -32,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     width: 450,
   },
   fullList: {
-    width: 'auto',
+    width: "auto",
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -101,23 +99,30 @@ export default function Header(props) {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   // var useSelector = useSelector()
 
-  var productInCart = useSelector(state=>state.cart)
-  var keys = Object.keys(productInCart)
-  var products = Object.values(productInCart)
-  var values = Object.values(productInCart)
+  var productInCart = useSelector((state) => state.cart);
+  var keys = Object.keys(productInCart);
+  var products = Object.values(productInCart);
+  var dispatch = useDispatch();
+  var values = Object.values(productInCart);
 
-  var totalPriceWithoutDiscount = values.reduce(calculatePriceWithoutDiscount,0);
+  var totalPriceWithoutDiscount = values.reduce(
+    calculatePriceWithoutDiscount,
+    0
+  );
 
-  function calculatePriceWithoutDiscount(a,b){
-    var actualPrice = b.data.price*b.data.value ;
-    return a+actualPrice;
+  function calculatePriceWithoutDiscount(a, b) {
+    var actualPrice = b.data.price * b.data.value;
+    return a + actualPrice;
   }
 
-  var totalPriceWithDiscount = values.reduce(calculatePriceWithDiscount,0);
+  var totalPriceWithDiscount = values.reduce(calculatePriceWithDiscount, 0);
 
-  function calculatePriceWithDiscount(a,b){
-    var actualPrice = b.data.offerprice>0?b.data.offerprice*b.data.value:b.data.price*b.data.value ;
-    return a+actualPrice;
+  function calculatePriceWithDiscount(a, b) {
+    var actualPrice =
+      b.data.offerprice > 0
+        ? b.data.offerprice * b.data.value
+        : b.data.price * b.data.value;
+    return a + actualPrice;
   }
 
   const isMenuOpen = Boolean(anchorEl);
@@ -159,78 +164,232 @@ export default function Header(props) {
   ////////////////////////////Right Drawer///////////////////////////
 
   
-  const [state, setState] = useState({right: false});
+  const [state, setState] = useState({ right: false });
+  const [refresh, setRefresh] = useState(false);
+  const [change , setChange] = useState(false);
+  
+  if(change)
+  {
+    setChange(false)
+  }
 
-  const toggleDrawer = (anchor, open)  => {
+  const toggleDrawer = (anchor, open) => {
     setState({ ...state, [anchor]: open });
   };
 
-  
+  const increseValue = (item) => {
+    if (item.data.value + 1 <= item.data.stock) {
+      item.data.value = item.data.value + 1;
+      var value = item.data.value;
+      var data = item.data;
+      dispatch({
+        type: "ADD_CART",
+        payload: [item.data.finalproductid, { data, value }],
+      });
+      setRefresh(!refresh);
+    }
+  };
 
-  const cartItems = ()=>{
-    return products.map((item)=>{
-      var ite = JSON.stringify(item) 
+  const decreaseValue = (item) => {
+    if (parseInt(item.data.value) - 1 == 0) {
+      dispatch({ type: "REMOVE_CART", payload: [item.data.finalproductid] });
+      setRefresh(!refresh);
+    } else {
+      item.data.value = item.data.value - 1;
+      var value = item.data.value;
+      var data = item.data;
+      dispatch({
+        type: "ADD_CART",
+        payload: [item.data.finalproductid, { data, value }],
+      });
+      setRefresh(!refresh);
+    }
+  };
+
+  const cartItems = () => {
+    return products.map((item) => {
+      var ite = JSON.stringify(item);
       return (
         <div>
-        <div style={{display:'flex',justifyContent:'space-evenly',margin:20}}>
-        <div style={{display:'flex',flexDirection:'column' , width:"50%"}}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              margin: 20,
+            }}
+          >
+            <div
+              style={{ display: "flex", flexDirection: "column", width: "50%" }}
+            >
+              <img src={`${ServerURL}/images/${item.data.picture}`} />
+              <span style={{ margin: 10, fontWeight: 700 }}>
+                {item.data.productname} ({" "}
+                <span style={{ color: item.data.colorname }}>
+                  {item.data.colorname}{" "}
+                </span>{" "}
+                )
+              </span>
+              
+            </div>
+            
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+                width: "100%",
+              }}
+            >
+              <span style={{ fontWeight: 700 }}>
+                &#8377;{" "}
+                {item.data.offerprice == 0
+                  ? item.data.price
+                  : item.data.offerprice}{" "}
+                x {item.data.value}
+              </span>
+              <span style={{ marginTop: 10 }}>
+                {" "}
+                {item.data.offerprice > 0 ? (
+                  <span style={{ color: "green", fontWeight: "bolder" }}>
+                    {" "}
+                    You save &#8377;{" "}
+                    {(item.data.price - item.data.offerprice) * item.data.value}
+                  </span>
+                ) : (
+                  <span style={{ color: "red", fontWeight: "bolder" }}>
+                    No Offer
+                  </span>
+                )}
+              </span>
+              <div style={{ display: "flex", marginTop: 20, marginLeft: 6 }}>
+            <Fab
+              size="small"
+              color="secondary"
+              aria-label="add"
+              boxShadow="0"
+              style={{ backgroundColor: "#50526e", boxShadow: 0 }}
+              variant="circular"
+              onClick={() => increseValue(item)}
+            >
+              <AddIcon />
+            </Fab>
+            <div
+              style={{ marginInline: 20, fontSize: 24, fontWeight: "bolder" }}
+            >
+              {item.data.value}
+            </div>
+            <Fab
+              size="small"
+              color="secondary"
+              aria-label="add"
+              style={{ backgroundColor: "#50526e" }}
+              variant="circular"
+              onClick={() => decreaseValue(item)}
+            >
+              <Remove />
+            </Fab>
+          </div>
 
-            <img src={`${ServerURL}/images/${item.data.picture}`} /> 
-          <span style={{margin:10,fontWeight:700}}>{item.data.productname} ( <span style={{color:item.data.colorname}}>{item.data.colorname} </span> )</span>
-        </div>
-          <div  style={{display:'flex',justifyContent:'center' , alignItems:'center',flexDirection:'column',width:'100%'}}>
-           
-         <span style={{fontWeight:700}}>&#8377; {item.data.offerprice==0?item.data.price:item.data.offerprice} x {item.data.value}</span>
-         <span style={{marginTop:10}}> {item.data.offerprice>0?<span style={{color:'green' ,fontWeight:'bolder'}}> You save &#8377; { (item.data.price - item.data.offerprice)*(item.data.value)}</span>:<span style={{color:'red' ,fontWeight:'bolder'}}>No Offer</span> }</span>
+            </div>
           </div>
-        </div>
+
+         
           <Divider />
-          </div>
-      )
-    })
+        </div>
+      );
+    });
+  };
+
+  const CloseDrawer=()=>{
+    toggleDrawer("right", false)
+    setChange(true)
   }
 
   const list = (anchor) => (
     <div
       className={clsx(classes.list, {
-        [classes.fullList]: anchor === 'top' || anchor === 'bottom',
+        [classes.fullList]: anchor === "top" || anchor === "bottom",
       })}
       role="presentation"
-      onClick={()=>toggleDrawer(anchor, false)}
-      onKeyDown={()=>toggleDrawer(anchor, false)}
+      // onClick={()=>toggleDrawer(anchor, false)}
+      // onKeyDown={() => CloseDrawer()}
     >
-      <div style={{padding:5, fontWeight:700}}>
-     Item(s): {keys.length}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <img src="glasskart9.png"></img>
       </div>
+      <div></div>
+      {keys.length == 0 ? (
+        <div>
+          <img src="emptycart.png"></img>
+        </div>
+      ) : (
+        <div>
+          <div style={{ padding: 5, fontWeight: 700 }}>
+            Item(s): {keys.length}
+          </div>
 
-      {cartItems()}
-      
-      <div style={{padding:10, fontWeight:700}}>
-      Payable: <span style={{float:'right'}}> &#8377; {totalPriceWithoutDiscount}</span>
-      </div>
+          {cartItems()}
 
-      <div style={{padding:10, fontWeight:700}}>
-      Savings: <span style={{float:'right'}}> &#8377; -{totalPriceWithoutDiscount-totalPriceWithDiscount} </span>
-      </div>
+          <div style={{ padding: 10, fontWeight: 700 }}>
+            Payable:{" "}
+            <span style={{ float: "right" }}>
+              {" "}
+              &#8377; {totalPriceWithoutDiscount}
+            </span>
+          </div>
 
-      <div style={{padding:10, fontWeight:700}}>
-    Net: <span style={{float:'right'}}> &#8377; {totalPriceWithDiscount} </span>
-      </div>
-      
+          <div style={{ padding: 10, fontWeight: 700 }}>
+            Savings:{" "}
+            <span style={{ float: "right" }}>
+              {" "}
+              &#8377; -{totalPriceWithoutDiscount - totalPriceWithDiscount}{" "}
+            </span>
+          </div>
+
+          <div style={{ padding: 10, fontWeight: 700 }}>
+            Net:{" "}
+            <span style={{ float: "right" }}>
+              {" "}
+              &#8377; {totalPriceWithDiscount}{" "}
+            </span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              style={{
+                backgroundColor: "#50526e",
+                color: "white",
+                width: "80%",
+                margin: 20,
+                padding: 10,
+                borderRadius: 0,
+              }}
+              onClick={() => props.history.push({ pathname: "/signup" })}
+            >
+              Proceed To Payment
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
-  const rightDrawer=()=>{
-        return(<div>
-          
-            <React.Fragment key={'right'}>
-              <Drawer anchor={'right'} open={state['right']} onClose={()=>toggleDrawer('right', false)}>
-                {list('right')}
-              </Drawer>
-            </React.Fragment>
-          
-        </div>)
-  }
+  const rightDrawer = () => {
+    return (
+      <div>
+        <React.Fragment key={"right"}>
+          <Drawer
+            anchor={"right"}
+            open={state["right"]}
+            onClose={() => CloseDrawer()}
+          >
+            {list("right")}
+          </Drawer>
+        </React.Fragment>
+      </div>
+    );
+  };
 
   ///////////////////////////////////////////////////////////////////
 
@@ -246,14 +405,18 @@ export default function Header(props) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton onClick={()=>toggleDrawer('right',true)} aria-label="show 4 new mails" color="inherit">
+        <IconButton
+          onClick={() => toggleDrawer("right", true)}
+          aria-label="show 4 new mails"
+          color="inherit"
+        >
           <Badge badgeContent={keys.length} color="secondary">
-            <ShoppingCart   />
+            <ShoppingCart />
           </Badge>
         </IconButton>
         <p>Messages</p>
       </MenuItem>
-      
+
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           aria-label="account of current user"
@@ -267,8 +430,6 @@ export default function Header(props) {
       </MenuItem>
     </Menu>
   );
-
-
 
   //////////My Work////////////////////
   const [getListCategory, setListCategory] = useState([]);
@@ -420,12 +581,16 @@ export default function Header(props) {
           </Menu>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <IconButton onClick={()=>toggleDrawer('right',true)} aria-label="show 4 new mails" color="inherit">
+            <IconButton
+              onClick={() => toggleDrawer("right", true)}
+              aria-label="show 4 new mails"
+              color="inherit"
+            >
               <Badge badgeContent={keys.length} color="secondary">
                 <ShoppingCart />
               </Badge>
             </IconButton>
-            
+
             <IconButton
               edge="end"
               aria-label="account of current user"
