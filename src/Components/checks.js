@@ -29,6 +29,10 @@ function isAlphabet(txt)
 
 function isMobile(txt)
 {
+    if(txt.length!=10)
+    {
+        return false ;
+    }
     if(/^[0-9]{10}/.test(txt))
     {
         return true ;

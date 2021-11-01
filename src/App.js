@@ -32,6 +32,8 @@ import productView from "./Components/UserInterface/productView";
 import OurStory from "./Components/UserInterface/OurStory ";
 import Signup from "./Components/UserInterface/Signup";
 import UserInterface from "./Components/UserInterface/UserLogin";
+import MyCart from "./Components/UserInterface/MyCart";
+import OrderSummary from "./Components/UserInterface/OrderSummary";
 function App(props) {
   return (
     <div className="App">
@@ -130,6 +132,12 @@ function App(props) {
       props={props.history}
       />
       <Route component={Signup} path='/signup'
+      props={props.history}
+      />
+      <Route component={MyCart} path='/mycart'
+      props={props.history}
+      />
+      <Route component={OrderSummary} path='/ordersummary'
       props={props.history}
       />
 

@@ -1,28 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Grid from '@mui/material/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Footer from "./Footer";
 import Header from "./Header";
-// import { styled } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
 import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
-import SendIcon from '@mui/icons-material/Send';
 import { Button } from "@material-ui/core";
-import { fontStyle } from "@mui/system";
-import { Divider } from "@material-ui/core";
 import IconButton from '@mui/material/IconButton';
-
-import FilledInput from '@mui/material/FilledInput';
+import OtpInput from 'react-otp-input';
+import "./style.css"
 import OutlinedInput from '@mui/material/OutlinedInput';
-import FormHelperText from '@mui/material/FormHelperText';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { ToastContainer, toast } from 'react-toastify';
+import { isEmpty,isEmail,isAlphabet } from "../checks";
+import { postData } from "../FetchAllServices";
+import { useSelector, useDispatch } from "react-redux";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -40,6 +38,30 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function UserInterface(props) {
+    const [otp , setOtp] = useState('')
+    const [fname, setfName] = useState('')
+    const [lname, setlName] = useState('')
+    const [email, setEmail] = useState('')
+
+    var dispatch = useDispatch();
+    var productInCart = useSelector((state) => state.cart);
+    var keys = Object.keys(productInCart);
+
+    const handleChangeOTP=(value)=>{
+        setOtp(value)
+    }
+
+    const toastMessage=(message)=>{
+        toast.warn(`${message}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          progress:0,
+          draggable: true,
+          });
+      }
 
     const handleClickShowPassword = () => {
         setValues({
@@ -84,6 +106,50 @@ export default function UserInterface(props) {
     const handleChange2 = (prop) => (event) => {
         setValues2({ ...values2, [prop]: event.target.value });
     };
+
+    const verifyOtpAndRegiter=async()=>{
+        var err = false ;
+        if(isEmpty(fname) || isEmpty(lname) || isEmpty(email) || isEmpty(values.password) || isEmpty(values2.password2) )
+        {
+            err = true ;
+            toastMessage("Please Enter All Details")
+        }
+        else if(isEmail(email)==false)
+        {
+            toastMessage("Please Enter the correct Email address")
+            err = true ;
+        }
+        if(err==false)
+        {
+            if(values.password==values2.password2)
+                {
+                    if(otp == props.location.state.otp)
+                    {
+                        var body = {username: fname+" "+lname,email:email,password:values.password,mobileNum:props.location.state.mobileNum}
+                        var result =await postData('userDetails/insertUser',body);
+                        if(result.result)
+                        {
+                            dispatch({type:"ADD_USER",payload:[result.data.mobileNum,result.data]});
+                            if(keys.length==0)
+                            props.history.push({pathname:'/home'})
+                            else
+                            props.history.push({pathname:'/mycart'})
+                        }else
+                        {
+                            alert("Not Registered");
+                        }
+                    }else
+                    {
+                        toastMessage("Please enter the correct OTP");
+                    }
+                }else
+                {
+                    toastMessage("Password And Confirm Password did not match")
+                }
+            }
+        }
+        
+
     const classes = useStyles();
     return (
         <div>
@@ -123,7 +189,7 @@ export default function UserInterface(props) {
                                         style={{ marginTop: 0 }}
                                         id="input-with-icon-textfield"
                                         label="Your first name"
-                                        // fullWidth
+                                        onChange={(event)=>setfName(event.target.value)}
                                         variant="outlined"
 
                                     />
@@ -134,7 +200,7 @@ export default function UserInterface(props) {
                                         style={{ marginTop: 0 }}
                                         id="input-with-icon-textfield"
                                         label="Your last name"
-                                        // fullWidth
+                                        onChange={(event)=>setlName(event.target.value)}
                                         variant="outlined"
 
                                     />
@@ -149,6 +215,7 @@ export default function UserInterface(props) {
                                         id="input-with-icon-textfield"
                                         label="Your Email-id"
                                         fullWidth
+                                        onChange={(event)=>setEmail(event.target.value)}
                                         variant="outlined"
 
                                     />
@@ -163,6 +230,7 @@ export default function UserInterface(props) {
                                             id="outlined-adornment-password"
                                             type={values.showPassword ? 'text' : 'password'}
                                             value={values.password}
+                                           
                                             onChange={handleChange('password')}
                                             endAdornment={
                                                 <InputAdornment position="end">
@@ -189,6 +257,7 @@ export default function UserInterface(props) {
                                             id="outlined-adornment-password2"
                                             type={values2.showPassword2 ? 'text' : 'password'}
                                             value={values2.password2}
+                                           
                                             onChange={handleChange2('password2')}
                                             endAdornment={
                                                 <InputAdornment position="end">
@@ -211,20 +280,20 @@ export default function UserInterface(props) {
                             <div style={{ marginLeft: 20,marginRight:20 }}>
                                 <p style={{fontSize:12}}>   Use 8 or more characters with a mix of letters & numbers</p>
                                 <h2 style={{ lineHeight: 0.5, }}>Verify</h2>
-                                <p style={{ lineHeight: 0.5,fontSize:12 }}>We have sent 4 digit OTP on</p></div>
+                                <p style={{ lineHeight: 0.5,fontSize:12 }}>We have sent 4 digit OTP on +91-<b>{props.location.state.mobileNum}</b></p></div>
                             <Grid cotainer spacing={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 20,marginRight:20 }} >
                                 <Grid item xs={12}>
-                                    <TextField
-                                        style={{ marginTop: 3 }}
-                                        id="input-with-icon-textfield"
-                                        label="Enter Your OTP"
-                                        fullWidth
-                                        variant="outlined"
-
+                                <OtpInput
+                                       style={{ marginTop: 15 }}
+                                        value={otp}
+                                        onChange={(value)=>handleChangeOTP(value)}
+                                        numInputs={4}
+                                        inputStyle="inputStyle"
+                                        separator={<span>-</span>}
                                     /></Grid></Grid>
                             <Grid cotainer spacing={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 20 }} >
                                 <Grid item xs={12}>
-                                    <Button variant="contained" fullWidth style={{ color: '#fff', background: '#50526e' }}>
+                                    <Button variant="contained" fullWidth style={{ color: '#fff', background: '#50526e' }} onClick={()=>verifyOtpAndRegiter()} >
                                         Verify
                                     </Button>
                                 </Grid></Grid>
@@ -241,6 +310,19 @@ export default function UserInterface(props) {
                 </Grid>
             </Box>
             <Footer />
+
+            <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            />
+
         </div>
     )
 }

@@ -17,10 +17,10 @@ import { useSelector } from "react-redux";
 import clsx from "clsx";
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
-import Fab from "@mui/material/Fab";
-import AddIcon from "@mui/icons-material/Add";
-import { Remove } from "@material-ui/icons";
+import { styled } from '@mui/material/styles';
 import { useDispatch } from "react-redux";
+import InputBase from '@mui/material/InputBase';
+import SearchIcon from '@mui/icons-material/Search';
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -93,6 +93,48 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.black, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.black, 0.25),
+  },
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: theme.spacing(1),
+    width: 'auto',
+  },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: '12ch',
+      '&:focus': {
+        width: '20ch',
+      },
+    },
+  },
+}));
+
 export default function Header(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -104,6 +146,8 @@ export default function Header(props) {
   var products = Object.values(productInCart);
   var dispatch = useDispatch();
   var values = Object.values(productInCart);
+  var users = useSelector((state) => state.user);
+  var keyUser = Object.keys(users);
 
   var totalPriceWithoutDiscount = values.reduce(
     calculatePriceWithoutDiscount,
@@ -156,8 +200,9 @@ export default function Header(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      {keyUser.length==0? <MenuItem onClick={()=>props.history.push({pathname:'/signup'})}>Sign In</MenuItem>:<> <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Sign Out</MenuItem></>}
+     
     </Menu>
   );
 
@@ -177,34 +222,6 @@ export default function Header(props) {
     setState({ ...state, [anchor]: open });
   };
 
-  const increseValue = (item) => {
-    if (item.data.value + 1 <= item.data.stock) {
-      item.data.value = item.data.value + 1;
-      var value = item.data.value;
-      var data = item.data;
-      dispatch({
-        type: "ADD_CART",
-        payload: [item.data.finalproductid, { data, value }],
-      });
-      setRefresh(!refresh);
-    }
-  };
-
-  const decreaseValue = (item) => {
-    if (parseInt(item.data.value) - 1 == 0) {
-      dispatch({ type: "REMOVE_CART", payload: [item.data.finalproductid] });
-      setRefresh(!refresh);
-    } else {
-      item.data.value = item.data.value - 1;
-      var value = item.data.value;
-      var data = item.data;
-      dispatch({
-        type: "ADD_CART",
-        payload: [item.data.finalproductid, { data, value }],
-      });
-      setRefresh(!refresh);
-    }
-  };
 
   const cartItems = () => {
     return products.map((item) => {
@@ -262,7 +279,7 @@ export default function Header(props) {
                   </span>
                 )}
               </span>
-              <div style={{ display: "flex", marginTop: 20, marginLeft: 6 }}>
+              {/* <div style={{ display: "flex", marginTop: 20, marginLeft: 6 }}>
             <Fab
               size="small"
               color="secondary"
@@ -289,7 +306,7 @@ export default function Header(props) {
             >
               <Remove />
             </Fab>
-          </div>
+          </div> */}
 
             </div>
           </div>
@@ -356,7 +373,19 @@ export default function Header(props) {
           </div>
 
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button
+            {keyUser.length>0?<Button
+              style={{
+                backgroundColor: "#50526e",
+                color: "white",
+                width: "80%",
+                margin: 20,
+                padding: 10,
+                borderRadius: 0,
+              }}
+              onClick={() => props.history.push({ pathname: "/mycart" })}
+            >
+              Make Payment
+            </Button> :<Button
               style={{
                 backgroundColor: "#50526e",
                 color: "white",
@@ -368,7 +397,8 @@ export default function Header(props) {
               onClick={() => props.history.push({ pathname: "/signup" })}
             >
               Proceed To Payment
-            </Button>
+            </Button>}
+            
           </div>
         </div>
       )}
@@ -560,6 +590,15 @@ export default function Header(props) {
           </div>
 
           {fillCategory()}
+          {/* <Search >
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search…"
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </Search> */}
 
           <Menu
             id="simple-menu"
@@ -580,7 +619,17 @@ export default function Header(props) {
             {myanchorEl ? subMenu() : <></>}
           </Menu>
           <div className={classes.grow} />
+          <Search style={{marginRight:20}}>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ 'aria-label': 'search' }}
+                />
+              </Search>
           <div className={classes.sectionDesktop}>
+         
             <IconButton
               onClick={() => toggleDrawer("right", true)}
               aria-label="show 4 new mails"
@@ -601,6 +650,7 @@ export default function Header(props) {
             >
               <AccountCircle />
             </IconButton>
+                
           </div>
           <div className={classes.sectionMobile}>
             <IconButton
